@@ -10,6 +10,7 @@ namespace Ylf\Front;
 
 use Ylf\Foundation\AbstractServiceProvider;
 use Ylf\Http\RouteCollection;
+use Ylf\Http\Handler\RouteHandlerFactory;
 
 class FrontServiceProvider extends AbstractServiceProvider
 {
@@ -27,8 +28,8 @@ class FrontServiceProvider extends AbstractServiceProvider
 
     protected function populateRoutes(RouteCollection $routes)
     {
-        $routes->get('/d', 'aa', function ($a, $b) {
-            print_r($b);exit;
-        });
+        $route = $this->app->make(RouteHandlerFactory::class);
+        
+        $routes->get('/', 'index', $route->toController(Controller\IndexController::class));
     }
 }

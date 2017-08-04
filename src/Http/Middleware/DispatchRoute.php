@@ -58,6 +58,7 @@ class DispatchRoute
 
         $routeInfo = $this->getDispatcher()->dispatch($method, $uri);
 
+
         switch ($routeInfo[0]) {
             case Dispatcher::NOT_FOUND:
                 return new HtmlResponse('NOT_FOUND 404');

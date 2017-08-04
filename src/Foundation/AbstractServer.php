@@ -54,10 +54,6 @@ abstract class AbstractServer
         }
 
         $this->basePath = $basePath;
-
-        if (file_exists($file = $this->basePath.'/config.php')) {
-            $this->config = include $file;
-        }
     }
 
     /**
@@ -140,9 +136,16 @@ abstract class AbstractServer
             $app->useStoragePath($this->storagePath);
         }
 
+        if (file_exists($file = $this->basePath.'/config/config_global.php')) {
+            $this->config = include $file;
+        }
+
         $app->instance('env', 'production');
         $app->instance('ylf.config', $this->config);
         $app->instance('config', $config = $this->getIlluminateConfig($app));
+
+        $app->register('Illuminate\Filesystem\FilesystemServiceProvider');
+        $app->register('Illuminate\View\ViewServiceProvider');
 
         $app->register('Ylf\Front\FrontServiceProvider');
 
@@ -164,24 +167,6 @@ abstract class AbstractServer
      */
     protected function getIlluminateConfig(Application $app)
     {
-        return new ConfigRepository([
-            'view' => [
-                'paths' => [],
-                'compiled' => $app->storagePath().'/views',
-            ],
-            'mail' => [
-                'driver' => 'mail',
-            ],
-            'filesystems' => [
-                'default' => 'local',
-                'cloud' => 's3',
-                'disks' => [
-                    'flarum-avatars' => [
-                        'driver' => 'local',
-                        'root'   => $app->basePath().'/assets/avatars'
-                    ]
-                ]
-            ]
-        ]);
+        return new ConfigRepository($app['ylf.config']);
     }
 }

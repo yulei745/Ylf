@@ -473,4 +473,85 @@ class Application extends Container implements ApplicationContract
     {
         return array_get($this->make('Ylf.config'), $key, $default);
     }
+
+
+    /**
+     * Get the URL to the Flarum installation.
+     *
+     * @param string $path
+     * @return string
+     */
+    public function url($path = null)
+    {
+//        $config = $this->isInstalled() ? $this->make('flarum.config') : [];
+//        $url = array_get($config, 'url', $_SERVER['REQUEST_URI']);
+//
+//        if (is_array($url)) {
+//            if (isset($url[$path])) {
+//                return $url[$path];
+//            }
+//
+//            $url = $url['base'];
+//        }
+//
+//        if ($path) {
+//            $url .= '/'.array_get($config, "paths.$path", $path);
+//        }
+
+        $url = $_SERVER['REQUEST_SCHEME'].'://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
+
+        return $url;
+    }
+
+
+    /**
+     * Resolve the given type from the container.
+     *
+     * (Overriding Container::make)
+     *
+     * @param  string  $abstract
+     * @return mixed
+     */
+    public function make($abstract)
+    {
+        $abstract = $this->getAlias($abstract);
+        if (isset($this->deferredServices[$abstract])) {
+            $this->loadDeferredProvider($abstract);
+        }
+        return parent::make($abstract);
+    }
+
+    /**
+     * Resolve the given type from the container.
+     *
+     * (Overriding Container::makeWith)
+     *
+     * @param  string  $abstract
+     * @param  array  $parameters
+     * @return mixed
+     */
+    public function makeWith($abstract, array $parameters)
+    {
+        $abstract = $this->getAlias($abstract);
+        if (isset($this->deferredServices[$abstract])) {
+            $this->loadDeferredProvider($abstract);
+        }
+        return parent::makeWith($abstract, $parameters);
+    }
+
+    /**
+     * Load and boot all of the remaining deferred providers.
+     *
+     * @return void
+     */
+    public function loadDeferredProviders()
+    {
+        // We will simply spin through each of the deferred providers and register each
+        // one and boot them if the application has booted. This should make each of
+        // the remaining services available to this application for immediate use.
+        foreach ($this->deferredServices as $service => $provider) {
+            $this->loadDeferredProvider($service);
+        }
+        $this->deferredServices = [];
+    }
 }

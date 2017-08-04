@@ -8,11 +8,6 @@
 
 require 'vendor/autoload.php';
 
-use Ylf\Foundation\Application;
+$server = new Ylf\Front\Server(__DIR__);
+$server->listen();
 
-
-$app = new Application(__DIR__);
-
-
-
-var_dump($app['app']);

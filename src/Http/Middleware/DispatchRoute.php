@@ -70,6 +70,8 @@ class DispatchRoute
                 $handler = $routeInfo[1];
                 $parameters = $routeInfo[2];
 
+//                var_dump($routeInfo[1]);exit;
+
                 return $handler($request, $parameters);
         }
     }

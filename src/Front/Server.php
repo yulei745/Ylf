@@ -36,7 +36,7 @@ class Server extends AbstractServer
 
         $errorDir = __DIR__.'/../../error';
 
-
+        $pipe->pipe($path, $app->make('Ylf\Http\Middleware\StartSession'));
         $pipe->pipe($path, $app->makeWith('Ylf\Http\Middleware\DispatchRoute', ['routes' => $app->make('ylf.front.routes')]));
 
         $pipe->pipe($path, function () use ($errorDir) {

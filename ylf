@@ -1,0 +1,15 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: leiyu
+ * Date: 2017/8/7
+ * Time: 17:39
+ */
+
+define('YLF_START', microtime(true));
+
+require 'vendor/autoload.php';
+
+$server = new Ylf\Console\Server(__DIR__);
+
+$server->listen();

@@ -28,6 +28,8 @@ class IndexController implements ControllerInterface
 
         $view = view('app');
 
+        $view .= $request->getAttribute('session')->get('csrf_token');
+
         $response = new Response;
         $response->getBody()->write($view);
 

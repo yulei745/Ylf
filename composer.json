@@ -20,7 +20,10 @@
     "illuminate/config": "5.4.x-dev",
     "nikic/fast-route": "v1.2.0",
     "illuminate/view": "5.4.x-dev",
-    "illuminate/cache": "5.4.x-dev"
+    "illuminate/cache": "5.4.x-dev",
+    "dflydev/fig-cookies": "v1.0.2",
+    "symfony/http-foundation": "v3.3.6",
+    "symfony/console": "v3.3.6"
   },
 
   "autoload": {

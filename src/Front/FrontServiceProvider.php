@@ -9,9 +9,7 @@
 namespace Ylf\Front;
 
 use Ylf\Foundation\AbstractServiceProvider;
-use Ylf\Http\Controller\ControllerInterface;
 use Ylf\Http\RouteCollection;
-use Ylf\Http\Handler\RouteHandlerFactory;
 
 class FrontServiceProvider extends AbstractServiceProvider
 {
@@ -28,17 +26,9 @@ class FrontServiceProvider extends AbstractServiceProvider
     }
 
     /**
-     * @param RouteCollection $routes
+     * @return string
      */
-    protected function populateRoutes(RouteCollection $routes)
-    {
-        $route = $this->app->make(RouteHandlerFactory::class);
-        $config = $this->app->make('ylf.config');
-        if(!empty($config['routes'])) {
-            foreach ($config['routes'] as $k => $v) {
-                list($controller, $name) = explode('@', $v[1]);
-                $routes->get($v[0], $name, $route->toController("Ylf\Front\Controller\\{$controller}"));
-            }
-        }
+    public function getRootesName() {
+        return 'Front';
     }
 }

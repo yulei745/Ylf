@@ -471,9 +471,18 @@ class Application extends Container implements ApplicationContract
      */
     public function config($key, $default = null)
     {
-        return array_get($this->make('Ylf.config'), $key, $default);
+        return array_get($this->make('ylf.config'), $key, $default);
     }
 
+    /**
+     * Check if Flarum is in debug mode.
+     *
+     * @return bool
+     */
+    public function inDebugMode()
+    {
+        return $this->config('debug');
+    }
 
     /**
      * Get the URL to the Flarum installation.

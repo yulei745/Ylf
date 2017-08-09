@@ -23,7 +23,10 @@
     "illuminate/cache": "5.4.x-dev",
     "dflydev/fig-cookies": "v1.0.2",
     "symfony/http-foundation": "v3.3.6",
-    "symfony/console": "v3.3.6"
+    "symfony/console": "v3.3.6",
+    "tobscure/json-api": "v0.4.1",
+    "franzl/whoops-middleware": "0.5.0",
+    "monolog/monolog": "1.23.0"
   },
 
   "autoload": {

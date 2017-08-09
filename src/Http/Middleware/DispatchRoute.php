@@ -3,6 +3,7 @@
 namespace Ylf\Http\Middleware;
 
 use Ylf\Http\RouteCollection;
+use Ylf\Http\Exception\RouteNotFoundException;
 
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -61,8 +62,7 @@ class DispatchRoute
 
         switch ($routeInfo[0]) {
             case Dispatcher::NOT_FOUND:
-                return new HtmlResponse('NOT_FOUND 404');
-
+                throw new RouteNotFoundException;
             case Dispatcher::METHOD_NOT_ALLOWED:
                 return new HtmlResponse('METHOD_NOT_ALLOWED 503');
 
@@ -70,9 +70,8 @@ class DispatchRoute
                 $handler = $routeInfo[1];
                 $parameters = $routeInfo[2];
 
-//                var_dump($routeInfo[1]);exit;
-
                 return $handler($request, $parameters);
+
         }
     }
 

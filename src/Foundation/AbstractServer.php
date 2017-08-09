@@ -9,7 +9,9 @@
 namespace Ylf\Foundation;
 
 use Illuminate\Config\Repository as ConfigRepository;
-
+use Monolog\Formatter\LineFormatter;
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
 
 abstract class AbstractServer
 {
@@ -144,9 +146,13 @@ abstract class AbstractServer
         $app->instance('ylf.config', $this->config);
         $app->instance('config', $config = $this->getIlluminateConfig($app));
 
+        $this->registerLogger($app);
+
         $app->register('Illuminate\Filesystem\FilesystemServiceProvider');
         $app->register('Illuminate\View\ViewServiceProvider');
 
+
+        $app->register('Ylf\Api\ApiServiceProvider');
         $app->register('Ylf\Front\FrontServiceProvider');
 
         foreach ($this->extendCallbacks as $callback) {
@@ -168,5 +174,23 @@ abstract class AbstractServer
     protected function getIlluminateConfig(Application $app)
     {
         return new ConfigRepository($app['ylf.config']);
+    }
+
+    /**
+     * @param Application $app
+     */
+    protected function registerLogger(Application $app)
+    {
+
+        $logger = new Logger($app->environment());
+        $logPath = $app->storagePath().'/logs/ylf-runtime.log';
+
+        $handler = new StreamHandler($logPath, Logger::DEBUG);
+        $handler->setFormatter(new LineFormatter(null, null, true, true));
+
+        $logger->pushHandler($handler);
+
+        $app->instance('log', $logger);
+        $app->alias('log', 'Psr\Log\LoggerInterface');
     }
 }

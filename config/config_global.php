@@ -6,9 +6,17 @@
  * Time: 14:41
  */
 
-$config['routes'] = [
+$config['debug'] = true;
+
+//前台路由配置
+$config['routes']['front'] = [
     ['/', 'IndexController@index'],
     ['/user/{id:\d+}', 'UserController@user']
+];
+
+//api路由配置
+$config['routes']['api'] = [
+    ['/', 'IndexController@index'],
 ];
 
 $config['view'] = [

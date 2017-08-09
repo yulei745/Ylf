@@ -4,13 +4,11 @@ namespace Ylf\Front;
 
 use Ylf\Http\AbstractServer;
 use Ylf\Foundation\Application;
-use Ylf\Http\Middleware\DispatchRoute;
-use Ylf\Http\RouteCollection;
+use Ylf\Http\Middleware\HandleErrors;
 
 use Zend\Diactoros\Response\HtmlResponse;
 use Zend\Stratigility\MiddlewarePipe;
 
-use Zend\Diactoros\ServerRequest;
 use Zend\Diactoros\Response;
 
 /**
@@ -35,6 +33,8 @@ class Server extends AbstractServer
         $path = '/';
 
         $errorDir = __DIR__.'/../../error';
+
+        $pipe->pipe($path, new HandleErrors($errorDir, $app->make('log'), $app->inDebugMode()));
 
         $pipe->pipe($path, $app->make('Ylf\Http\Middleware\StartSession'));
         $pipe->pipe($path, $app->makeWith('Ylf\Http\Middleware\DispatchRoute', ['routes' => $app->make('ylf.front.routes')]));

@@ -64,8 +64,7 @@ class DispatchRoute
             case Dispatcher::NOT_FOUND:
                 throw new RouteNotFoundException;
             case Dispatcher::METHOD_NOT_ALLOWED:
-                return new HtmlResponse('METHOD_NOT_ALLOWED 503');
-
+                throw new MethodNotAllowedException;
             case Dispatcher::FOUND:
                 $handler = $routeInfo[1];
                 $parameters = $routeInfo[2];

@@ -8,15 +8,23 @@
 
 $config['debug'] = true;
 
+$config['url'] = 'http://dev.ylf.com';
+$config['paths'] = [
+    'api' => 'api',
+    'admin' => 'admin',
+];
+
 //前台路由配置
 $config['routes']['front'] = [
     ['/', 'IndexController@index'],
+    ['/google/recaptcha', 'GoogleController@google'],
     ['/user/{id:\d+}', 'UserController@user']
 ];
 
 //api路由配置
 $config['routes']['api'] = [
     ['/', 'IndexController@index'],
+    ['/user/{id:\d+}', 'UserController@user']
 ];
 
 $config['view'] = [

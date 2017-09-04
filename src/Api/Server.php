@@ -30,7 +30,7 @@ class Server extends AbstractServer
         $pipe = new MiddlewarePipe();
         $pipe->setResponsePrototype(new Response());
 
-        $path = '/api';
+        $path = parse_url($app->url('api'), PHP_URL_PATH);
 
         $pipe->pipe($path, $app->makeWith('Ylf\Api\Middleware\HandleErrors', ['debug'=>$app->inDebugMode()]));
 

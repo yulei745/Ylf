@@ -1,4 +1,10 @@
 <?php
+/**
+ * Created by PhpStorm.
+ * User: leiyu
+ * Date: 2017/8/3
+ * Time: 10:11
+ */
 
 namespace Ylf\Foundation;
 
@@ -9,12 +15,6 @@ use Illuminate\Events\EventServiceProvider;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
-/**
- * Created by PhpStorm.
- * User: leiyu
- * Date: 2017/8/3
- * Time: 10:11
- */
 class Application extends Container implements ApplicationContract
 {
     /**
@@ -433,8 +433,9 @@ class Application extends Container implements ApplicationContract
      */
     protected function markAsRegistered($provider)
     {
+        $this['events']->fire($class = get_class($provider), [$provider]);
         $this->serviceProviders[] = $provider;
-        $this->loadedProviders[get_class($provider)] = true;
+        $this->loadedProviders[$class] = true;
     }
 
 
@@ -484,6 +485,11 @@ class Application extends Container implements ApplicationContract
         return $this->config('debug');
     }
 
+    public function isInstalled()
+    {
+        return true;
+    }
+
     /**
      * Get the URL to the Flarum installation.
      *
@@ -492,22 +498,20 @@ class Application extends Container implements ApplicationContract
      */
     public function url($path = null)
     {
-//        $config = $this->isInstalled() ? $this->make('flarum.config') : [];
-//        $url = array_get($config, 'url', $_SERVER['REQUEST_URI']);
-//
-//        if (is_array($url)) {
-//            if (isset($url[$path])) {
-//                return $url[$path];
-//            }
-//
-//            $url = $url['base'];
-//        }
-//
-//        if ($path) {
-//            $url .= '/'.array_get($config, "paths.$path", $path);
-//        }
+        $config = $this->isInstalled() ? $this->make('ylf.config') : [];
+        $url = array_get($config, 'url', $_SERVER['REQUEST_URI']);
 
-        $url = $_SERVER['REQUEST_SCHEME'].'://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
+        if (is_array($url)) {
+            if (isset($url[$path])) {
+                return $url[$path];
+            }
+
+            $url = $url['base'];
+        }
+
+        if ($path) {
+            $url .= '/'.array_get($config, "paths.$path", $path);
+        }
 
         return $url;
     }

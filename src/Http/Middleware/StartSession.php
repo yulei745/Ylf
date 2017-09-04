@@ -14,10 +14,10 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
-
 use Illuminate\Support\Str;
 
-use Dflydev\FigCookies\Cookie;
+use Dflydev\FigCookies\FigResponseCookies;
+use Ylf\Http\CookieFactory;
 
 
 class StartSession
@@ -25,8 +25,9 @@ class StartSession
 
     protected $cookie;
 
-    public function __construct()
+    public function __construct(CookieFactory $cookie)
     {
+        $this->cookie = $cookie;
     }
 
     /**
@@ -41,9 +42,14 @@ class StartSession
         $session = $this->startSession();
 
         $request = $request->withAttribute('session', $session);
+
+        $response = $out ? $out($request, $response) : $response;
+
+
         $response = $this->withCsrfTokenHeader($response, $session);
 
-        return $out ? $out($request, $response) : $response;
+        return $this->withSessionCookie($response, $session);
+
     }
 
     /**
@@ -74,6 +80,19 @@ class StartSession
         }
 
         return $response;
+    }
+
+    /**
+     * @param Response $response
+     * @param SessionInterface $session
+     * @return mixed
+     */
+    private function withSessionCookie(Response $response, SessionInterface $session)
+    {
+        return FigResponseCookies::set(
+            $response,
+            $this->cookie->make($session->getName(), $session->getId())
+        );
     }
 
 }

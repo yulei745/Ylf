@@ -16,6 +16,8 @@ use Illuminate\Support\Str;
 use Ylf\Http\RouteCollection;
 use Ylf\Http\Handler\RouteHandlerFactory;
 
+use Ylf\Event\ConfigureFrontRoutes;
+
 abstract class AbstractServiceProvider extends ServiceProvider
 {
     /**
@@ -56,5 +58,9 @@ abstract class AbstractServiceProvider extends ServiceProvider
                 $routes->get($v[0], $name, $route->toController("Ylf\\{$routename}\Controller\\{$controller}"));
             }
         }
+
+        $this->app->make('events')->fire(
+            new ConfigureFrontRoutes($routes, $route)
+        );
     }
 }

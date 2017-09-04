@@ -30,13 +30,15 @@ class Server extends AbstractServer
 
         $pipe->setResponsePrototype(new Response());
 
-        $path = '/';
-
+        $path = parse_url($app->url(), PHP_URL_PATH);
         $errorDir = __DIR__.'/../../error';
 
         $pipe->pipe($path, new HandleErrors($errorDir, $app->make('log'), $app->inDebugMode()));
 
         $pipe->pipe($path, $app->make('Ylf\Http\Middleware\StartSession'));
+
+//        event(new ConfigureMiddleware($pipe, $path, $this));
+
         $pipe->pipe($path, $app->makeWith('Ylf\Http\Middleware\DispatchRoute', ['routes' => $app->make('ylf.front.routes')]));
 
         $pipe->pipe($path, function () use ($errorDir) {

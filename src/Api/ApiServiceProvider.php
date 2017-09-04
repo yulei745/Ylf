@@ -11,6 +11,7 @@ namespace Ylf\Api;
 
 use Ylf\Foundation\AbstractServiceProvider;
 use Ylf\Http\RouteCollection;
+use Ylf\Api\Controller\AbstractSerializeController;
 
 use Tobscure\JsonApi\ErrorHandler;
 use Tobscure\JsonApi\Exception\Handler\FallbackExceptionHandler;
@@ -29,6 +30,10 @@ class ApiServiceProvider extends AbstractServiceProvider
             return new RouteCollection;
         });
 
+        $this->app->singleton(UrlGenerator::class, function () {
+            return new UrlGenerator($this->app, $this->app->make('ylf.api.routes'));
+        });
+
         $this->app->singleton(ErrorHandler::class, function () {
             $handler = new ErrorHandler;
 
@@ -36,7 +41,7 @@ class ApiServiceProvider extends AbstractServiceProvider
 //            $handler->registerHandler(new Handler\IlluminateValidationExceptionHandler);
 //            $handler->registerHandler(new Handler\InvalidAccessTokenExceptionHandler);
 //            $handler->registerHandler(new Handler\InvalidConfirmationTokenExceptionHandler);
-//            $handler->registerHandler(new Handler\MethodNotAllowedExceptionHandler);
+            $handler->registerHandler(new Handler\MethodNotAllowedExceptionHandler);
 //            $handler->registerHandler(new Handler\ModelNotFoundExceptionHandler);
 //            $handler->registerHandler(new Handler\PermissionDeniedExceptionHandler);
             $handler->registerHandler(new Handler\RouteNotFoundExceptionHandler);
@@ -55,6 +60,8 @@ class ApiServiceProvider extends AbstractServiceProvider
     public function boot()
     {
         $this->populateRoutes($this->app->make('ylf.api.routes'));
+
+        AbstractSerializeController::setContainer($this->app);
     }
 
 

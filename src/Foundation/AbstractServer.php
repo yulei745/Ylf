@@ -130,7 +130,7 @@ abstract class AbstractServer
             return $this->app;
         }
 
-        date_default_timezone_set('UTC');
+        date_default_timezone_set('Asia/Shanghai');
 
         $app = new Application($this->basePath);
 
@@ -183,7 +183,7 @@ abstract class AbstractServer
     {
 
         $logger = new Logger($app->environment());
-        $logPath = $app->storagePath().'/logs/ylf-runtime.log';
+        $logPath = $app->storagePath().'/logs/runtime.log';
 
         $handler = new StreamHandler($logPath, Logger::DEBUG);
         $handler->setFormatter(new LineFormatter(null, null, true, true));

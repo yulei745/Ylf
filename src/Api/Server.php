@@ -32,9 +32,9 @@ class Server extends AbstractServer
 
         $path = parse_url($app->url('api'), PHP_URL_PATH);
 
-        $pipe->pipe($path, $app->makeWith('Ylf\Api\Middleware\HandleErrors', ['debug'=>$app->inDebugMode()]));
+        $pipe->pipe($path, $app->make('Ylf\Api\Middleware\HandleErrors', ['debug'=>$app->inDebugMode()]));
 
-        $pipe->pipe($path, $app->makeWith('Ylf\Http\Middleware\DispatchRoute', ['routes' => $app->make('ylf.api.routes')]));
+        $pipe->pipe($path, $app->make('Ylf\Http\Middleware\DispatchRoute', ['routes' => $app->make('ylf.api.routes')]));
 
         $pipe->pipe($path, function () {
             $document = new Document;

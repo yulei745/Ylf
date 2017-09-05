@@ -39,7 +39,7 @@ class Server extends AbstractServer
 
 //        event(new ConfigureMiddleware($pipe, $path, $this));
 
-        $pipe->pipe($path, $app->makeWith('Ylf\Http\Middleware\DispatchRoute', ['routes' => $app->make('ylf.front.routes')]));
+        $pipe->pipe($path, $app->make('Ylf\Http\Middleware\DispatchRoute', ['routes' => $app->make('ylf.front.routes')]));
 
         $pipe->pipe($path, function () use ($errorDir) {
             return new HtmlResponse(file_get_contents($errorDir . '/503.html', 503));

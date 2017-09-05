@@ -554,33 +554,16 @@ class Application extends Container implements ApplicationContract
      * (Overriding Container::make)
      *
      * @param  string  $abstract
-     * @return mixed
-     */
-    public function make($abstract)
-    {
-        $abstract = $this->getAlias($abstract);
-        if (isset($this->deferredServices[$abstract])) {
-            $this->loadDeferredProvider($abstract);
-        }
-        return parent::make($abstract);
-    }
-
-    /**
-     * Resolve the given type from the container.
-     *
-     * (Overriding Container::makeWith)
-     *
-     * @param  string  $abstract
      * @param  array  $parameters
      * @return mixed
      */
-    public function makeWith($abstract, array $parameters)
+    public function make($abstract, array $parameters = [])
     {
         $abstract = $this->getAlias($abstract);
-        if (isset($this->deferredServices[$abstract])) {
+        if (isset($this->deferredServices[$abstract]) && ! isset($this->instances[$abstract])) {
             $this->loadDeferredProvider($abstract);
         }
-        return parent::makeWith($abstract, $parameters);
+        return parent::make($abstract, $parameters);
     }
 
     /**
@@ -597,5 +580,25 @@ class Application extends Container implements ApplicationContract
             $this->loadDeferredProvider($service);
         }
         $this->deferredServices = [];
+    }
+
+    /**
+     * Determine if we are running in the console.
+     *
+     * @return bool
+     */
+    public function runningInConsole()
+    {
+        return php_sapi_name() == 'cli' || php_sapi_name() == 'phpdbg';
+    }
+
+    /**
+     * Get the path to the cached packages.php file.
+     *
+     * @return string
+     */
+    public function getCachedPackagesPath()
+    {
+        return $this->storagePath().'/cache/packages.php';
     }
 }

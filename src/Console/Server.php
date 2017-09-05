@@ -38,7 +38,7 @@ class Server extends AbstractServer
 
         foreach ($commands as $command)
         {
-            $console->add($app->makeWith($command, $app->make('ylf.config')));
+            $console->add($app->make($command, $app->make('ylf.config')));
         }
 
         return $console;

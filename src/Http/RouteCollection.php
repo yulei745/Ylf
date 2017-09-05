@@ -90,9 +90,8 @@ class RouteCollection
         if (isset($this->reverse[$name])) {
             $parts = $this->reverse[$name][0];
             array_walk($parts, [$this, 'fixPathPart'], $parameters);
-            var_dump($parts);exit;
 
-            return '/'.ltrim((is_array($parts) ? implode(' ', $parts) : $parts), '/');
+            return '/'.ltrim((is_array($parts) ? implode('', $parts) : $parts), '/');
         }
 
         throw new \RuntimeException("Route $name not found");

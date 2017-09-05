@@ -40,7 +40,7 @@ class UserController extends AbstractSerializeController
     {
         // TODO: Implement data() method.
         $document->addPaginationLinks(
-            $this->url->toRoute('user'),
+            $this->url->toRoute('user', $request->getQueryParams()),
             $request->getQueryParams(),
             0,
             10,

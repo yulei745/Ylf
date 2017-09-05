@@ -138,15 +138,35 @@ class Application extends Container implements ApplicationContract
     }
 
     /**
+     * Get the path to the application "app" directory.
+     *
+     * @param string $path Optionally, a path to append to the app path
+     * @return string
+     */
+//    public function path($path = '')
+//    {
+//        return $this->basePath.DIRECTORY_SEPARATOR.'app'.($path ? DIRECTORY_SEPARATOR.$path : $path);
+//    }
+
+    /**
      * Bind all of the application paths in the container.
      *
      * @return void
      */
     protected function bindPathsInContainer()
     {
-        foreach (['base', 'storage'] as $path) {
-            $this->instance('path.'.$path, $this->{$path.'Path'}());
-        }
+//        foreach (['path', 'base', 'storage', 'config'] as $path) {
+//            $this->instance('path.'.$path, $this->{$path.'Path'}());
+//        }
+//        $this->instance('path', $this->path());
+        $this->instance('path.base', $this->basePath());
+//        $this->instance('path.lang', $this->langPath());
+        $this->instance('path.config', $this->configPath());
+//        $this->instance('path.public', $this->publicPath());
+        $this->instance('path.storage', $this->storagePath());
+//        $this->instance('path.database', $this->databasePath());
+//        $this->instance('path.resources', $this->resourcePath());
+//        $this->instance('path.bootstrap', $this->bootstrapPath());
     }
 
     /**
@@ -159,7 +179,7 @@ class Application extends Container implements ApplicationContract
                  'blade.compiler'       => [\Illuminate\View\Compilers\BladeCompiler::class],
                  'cache'                => [\Illuminate\Cache\CacheManager::class, \Illuminate\Contracts\Cache\Factory::class],
                  'cache.store'          => [\Illuminate\Cache\Repository::class, \Illuminate\Contracts\Cache\Repository::class],
-//                 'config'               => [\Illuminate\Config\Repository::class, \Illuminate\Contracts\Config\Repository::class],
+                 'config'               => [\Illuminate\Config\Repository::class, \Illuminate\Contracts\Config\Repository::class],
 //                 'db'                   => \Illuminate\Database\DatabaseManager::class,
                  'events'               => [\Illuminate\Events\Dispatcher::class, \Illuminate\Contracts\Events\Dispatcher::class],
                  'files'                => [\Illuminate\Filesystem\Filesystem::class],
@@ -200,6 +220,17 @@ class Application extends Container implements ApplicationContract
     }
 
     /**
+     * Get the path to the application configuration files.
+     *
+     * @param string $path Optionally, a path to append to the config path
+     * @return string
+     */
+    public function configPath($path = '')
+    {
+        return $this->basePath.DIRECTORY_SEPARATOR.'config'.($path ? DIRECTORY_SEPARATOR.$path : $path);
+    }
+
+    /**
      * Get the version number of the application.
      *
      * @return string
@@ -235,7 +266,7 @@ class Application extends Container implements ApplicationContract
      */
     public function isDownForMaintenance()
     {
-        return $this->config('offline');
+        return $this->config('app.offline');
     }
 
     /**
@@ -356,7 +387,7 @@ class Application extends Container implements ApplicationContract
      */
     public function getCachedServicesPath()
     {
-        return $this->basePath().'/bootstrap/cache/services.json';
+        return false;
     }
 
 
@@ -472,7 +503,7 @@ class Application extends Container implements ApplicationContract
      */
     public function config($key, $default = null)
     {
-        return array_get($this->make('ylf.config'), $key, $default);
+        return array_get($this->make('config'), $key, $default);
     }
 
     /**
@@ -482,7 +513,7 @@ class Application extends Container implements ApplicationContract
      */
     public function inDebugMode()
     {
-        return $this->config('debug');
+        return $this->config('app.debug');
     }
 
     public function isInstalled()
@@ -498,8 +529,8 @@ class Application extends Container implements ApplicationContract
      */
     public function url($path = null)
     {
-        $config = $this->isInstalled() ? $this->make('ylf.config') : [];
-        $url = array_get($config, 'url', $_SERVER['REQUEST_URI']);
+        $config = $this->isInstalled() ? $this->make('config') : [];
+        $url = array_get($config, 'app.url', $_SERVER['REQUEST_URI']);
 
         if (is_array($url)) {
             if (isset($url[$path])) {
@@ -510,7 +541,7 @@ class Application extends Container implements ApplicationContract
         }
 
         if ($path) {
-            $url .= '/'.array_get($config, "paths.$path", $path);
+            $url .= '/'.array_get($config, "app.paths.$path", $path);
         }
 
         return $url;

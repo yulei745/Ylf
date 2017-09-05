@@ -8,10 +8,18 @@
 
 namespace Ylf\Foundation;
 
+use Exception;
+use Illuminate\Support\Facades\App;
+use SplFileInfo;
+
 use Illuminate\Config\Repository as ConfigRepository;
+use Illuminate\Contracts\Config\Repository as RepositoryContract;
+
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
+
+use Symfony\Component\Finder\Finder;
 
 abstract class AbstractServer
 {
@@ -130,30 +138,13 @@ abstract class AbstractServer
             return $this->app;
         }
 
-        date_default_timezone_set('Asia/Shanghai');
-
         $app = new Application($this->basePath);
 
-        if ($this->storagePath) {
-            $app->useStoragePath($this->storagePath);
-        }
-
-        if (file_exists($file = $this->basePath.'/config/config_global.php')) {
-            $this->config = include $file;
-        }
-
-        $app->instance('env', 'production');
-        $app->instance('ylf.config', $this->config);
-        $app->instance('config', $config = $this->getIlluminateConfig($app));
+        $this->getIlluminateConfig($app);
 
         $this->registerLogger($app);
 
-        $app->register('Illuminate\Filesystem\FilesystemServiceProvider');
-        $app->register('Illuminate\View\ViewServiceProvider');
-
-
-        $app->register('Ylf\Api\ApiServiceProvider');
-        $app->register('Ylf\Front\FrontServiceProvider');
+        $this->registerProviders($app);
 
         foreach ($this->extendCallbacks as $callback) {
             $app->call($callback);
@@ -173,7 +164,70 @@ abstract class AbstractServer
      */
     protected function getIlluminateConfig(Application $app)
     {
-        return new ConfigRepository($app['ylf.config']);
+        $app->instance('config', $config = new ConfigRepository([]));
+        $this->loadConfigurationFiles($app, $config);
+        $app->instance('env', $config->get('app.env', 'production'));
+        date_default_timezone_set($config->get('app.timezone', 'Asia/Shanghai'));
+    }
+
+    /**
+     * Load the configuration items from all of the files.
+     *
+     * @param  \Illuminate\Contracts\Foundation\Application  $app
+     * @param  \Illuminate\Contracts\Config\Repository  $repository
+     * @return void
+     * @throws \Exception
+     */
+    protected function loadConfigurationFiles(Application $app, RepositoryContract $repository)
+    {
+        $files = $this->getConfigurationFiles($app);
+
+        if (! isset($files['app'])) {
+            throw new Exception('Unable to load the "app" configuration file.');
+        }
+
+        foreach ($files as $key => $path) {
+            $repository->set($key, require $path);
+        }
+    }
+
+    /**
+     * Get all of the configuration files for the application.
+     *
+     * @param  \Illuminate\Contracts\Foundation\Application  $app
+     * @return array
+     */
+    protected function getConfigurationFiles(Application $app)
+    {
+        $files = [];
+
+        $configPath = realpath($app->configPath());
+
+        foreach (Finder::create()->files()->name('*.php')->in($configPath) as $file) {
+            $directory = $this->getNestedDirectory($file, $configPath);
+
+            $files[$directory.basename($file->getRealPath(), '.php')] = $file->getRealPath();
+        }
+
+        return $files;
+    }
+
+    /**
+     * Get the configuration file nesting path.
+     *
+     * @param  \SplFileInfo  $file
+     * @param  string  $configPath
+     * @return string
+     */
+    protected function getNestedDirectory(SplFileInfo $file, $configPath)
+    {
+        $directory = $file->getPath();
+
+        if ($nested = trim(str_replace($configPath, '', $directory), DIRECTORY_SEPARATOR)) {
+            $nested = str_replace(DIRECTORY_SEPARATOR, '.', $nested).'.';
+        }
+
+        return $nested;
     }
 
     /**
@@ -183,14 +237,28 @@ abstract class AbstractServer
     {
 
         $logger = new Logger($app->environment());
-        $logPath = $app->storagePath().'/logs/runtime.log';
+        $logPath = $app->make('config')->get('app.log_path', $app->storagePath().'logs/runtime.log');
+        $level = $app->make('config')->get('app.log_level', Logger::DEBUG);
 
-        $handler = new StreamHandler($logPath, Logger::DEBUG);
+        $handler = new StreamHandler($logPath, $level);
         $handler->setFormatter(new LineFormatter(null, null, true, true));
 
         $logger->pushHandler($handler);
 
         $app->instance('log', $logger);
         $app->alias('log', 'Psr\Log\LoggerInterface');
+    }
+
+    /**
+     * @param Application $app
+     */
+    protected function registerProviders(Application $app)
+    {
+
+        $providers = $app->make('config')->get('app.providers');
+        foreach ($providers as $provider)
+        {
+            $app->register($provider);
+        }
     }
 }
